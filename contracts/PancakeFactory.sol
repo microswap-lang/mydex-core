@@ -6,16 +6,12 @@ import "./PancakePair.sol";
 
 contract PancakeFactory is IPancakeFactory {
     address public feeTo;
-    address public feeToSetter;
+    address public feeToSetter = 0xA74cD1C7778D787DB0B9e440387A07B1848997E3; // your admin wallet
 
     mapping(address => mapping(address => address)) public override getPair;
     address[] public allPairs;
 
     event PairCreated(address indexed token0, address indexed token1, address pair, uint);
-
-    constructor(address _feeToSetter) {
-        feeToSetter = _feeToSetter;
-    }
 
     function allPairsLength() external view override returns (uint) {
         return allPairs.length;
@@ -39,7 +35,7 @@ contract PancakeFactory is IPancakeFactory {
         PancakePair(pair).initialize(token0, token1);
 
         getPair[token0][token1] = pair;
-        getPair[token1][token0] = pair; // populate mapping in the reverse direction
+        getPair[token1][token0] = pair; // populate reverse mapping
         allPairs.push(pair);
 
         emit PairCreated(token0, token1, pair, allPairs.length);
@@ -50,8 +46,9 @@ contract PancakeFactory is IPancakeFactory {
         feeTo = _feeTo;
     }
 
-    function setFeeToSetter(address _feeToSetter) external override {
+    function setFeeToSetter(address _newSetter) external override {
         require(msg.sender == feeToSetter, "PancakeFactory: FORBIDDEN");
-        feeToSetter = _feeToSetter;
+        feeToSetter = _newSetter;
     }
 }
+
